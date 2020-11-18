@@ -1,0 +1,196 @@
+def imageNameApp = ""
+def imageTagApp = ""
+def appName = ""
+def appIngressPath = "service-a"
+def namespace = "pica"
+def registroDockerUP = "10.29.67.48:8083/${namespace}"
+def registroDockerDOWN = "10.29.67.48:8082/${namespace}"
+def customImagenApp = ""
+def baseFoler = "orchestrators/conso"
+def dockerFolderApp = "${baseFoler}/docker/app"
+def k8sFolderApp = "${baseFoler}/k8s/app/deploy"
+def dominio = "${namespace}.conso.com"
+def version = "v1"
+def deploy = "deploy"
+
+def getVersion() {
+	return ['v1','v2'].join('\n')
+}
+
+pipeline {
+
+	agent { label "pica" }
+	
+	stages {
+	
+		stage ("Inicializacion") {
+            steps {
+				echo "Inicio pipeline"
+            }
+        }
+        
+        stage ("artifactId y version desde el pom.xml") {
+            steps {
+            	script {
+    				pom = readMavenPom file: 'pom.xml'
+    				appName = pom.artifactId.toLowerCase()
+    				imageNameApp = appName.toLowerCase()
+					imageTagApp = pom.version
+            	}
+            }
+        }
+        
+        stage ("Echo variables") {
+            steps {
+				echo "imageNameApp = ${imageNameApp}"
+				echo "imageTagApp = ${imageTagApp}"
+				echo "appName = ${appName}"
+				echo "dockerFolderApp = ${dockerFolderApp}"
+				echo "k8sFolderApp = ${k8sFolderApp}"
+				echo "appIngressPath = ${appIngressPath}"
+				echo "namespace = ${namespace}"
+				echo "deploy = ${deploy}"
+            }
+        }
+	    
+        stage("Construccion y subida de imagenes al registro") {
+        	steps {
+				script {
+					sh "cp /home/jenkins/docker/settings_nexus3.xml ."
+					
+			        docker.withRegistry("http://${registroDockerUP}") {
+			        	echo "Construimos ${namespace}/${imageNameApp}:${imageTagApp}"
+			        	customImagenApp = docker.build("${namespace}/${imageNameApp}:${imageTagApp}", "-f ${dockerFolderApp}/Dockerfile --no-cache .")
+			        	echo "Subimos ${namespace}/${imageNameApp}:${imageTagApp} al registro privado"
+			            customImagenApp.push()
+			        }
+		        }
+	        }
+	    }
+	    
+	    stage("Deploy k8s app") {
+	    	steps {
+	    		script {
+	    			try {
+		    		    timeout(time: 60, unit: 'SECONDS') {
+		                    script {
+		                       	def VERSION = input(id: 'VERSION', message: 'Please Provide Parameters', ok: 'Next',
+									parameters: [[$class: 'ChoiceParameterDefinition', description:'Available Versions', name:'VERSION_DEPLOY', choices: getVersion()]
+								])
+		                            
+		                        version = "${VERSION}"
+		                        echo "version = ${version}"
+		                    }
+			        	}
+		    		} catch(exc) {
+		    			if("${BRANCH_NAME}" == "master"){
+		    				version = "v1"
+		    			} else {
+		    				version = "v2"
+		    			}
+		    			echo "version = ${version}"
+		    			echo "BRANCH_NAME = ${BRANCH_NAME}"
+		    		}
+	    		
+		    		try {
+		    			def text = readFile "${k8sFolderApp}/deployment.yml"
+						text = text.replaceAll("REGISTRO", "${registroDockerDOWN}")
+						text = text.replaceAll("IMAGENAME", "${imageNameApp}")
+						text = text.replaceAll("IMAGETAG", "${imageTagApp}")
+						text = text.replaceAll("APPNAME", "${appName}")
+						text = text.replaceAll("NAMESPACE", "${namespace}")
+						text = text.replaceAll("APPINGRESSPATH", "${appIngressPath}")
+						text = text.replaceAll("VERSIONDEPLOY", "${version}")
+						text = text.replaceAll("DEPLOY", "${deploy}")
+		    			writeFile file: "${k8sFolderApp}/deployment.yml", text: "${text}"
+		    			echo "deployment = \n${text}"
+		    			
+		    			echo "Creamos deployment y servicio APP"
+		    			sh "kubectl apply -f ${k8sFolderApp}/deployment.yml"
+		    			sh "kubectl annotate deploy ${appName}-${version}-${deploy} kubernetes.io/change-cause=\"build ${BUILD_NUMBER}\" -n ${namespace}"
+		    			echo "Para asegurarnos borramos el pod"
+		    			sh "kubectl delete pods -l app=${appName} -n ${namespace}" 
+		    		} catch (exc) {
+		    			echo "Error al lanzar el deploy/service de la APP"
+		    			throw exc
+		    		}
+		    	}
+		    }
+	    }
+	    
+	    stage("Salud del despliege") {
+			steps {
+			    script {
+			        try {
+						echo "Revisamos el estado de salud del despliegue"
+						DEPLOY_OK = sh (
+						    script: "kubectl rollout status deploy/${appName}-${version}-${deploy} --watch=true --timeout=100s --namespace ${namespace}",
+						    returnStatus: true
+						) == 0
+						echo "Deploy OK: ${DEPLOY_OK}"
+						if (DEPLOY_OK){
+  							currentBuild.result = 'SUCCESS'
+    					} else {
+							currentBuild.result = 'FAILURE'
+	            		}
+			        } catch(exec) {
+			              echo "Error en el rollout"
+			              throw exc
+			        }
+			    }
+			}
+	    }
+	    
+	    stage("Service info") {
+	        when {
+	            expression { currentBuild.result == 'SUCCESS' }
+	        }
+	    	steps {
+	    		script {
+		    		try {
+		    			echo "Recuperamos info de la aplicación"
+		    			PORT = sh (
+						    script: "kubectl get svc --selector=app=${appName} -o jsonpath='{.items[*].spec.ports[0].nodePort}' --namespace ${namespace}",
+						    returnStdout: true
+						).trim()
+						echo "Service port: ${PORT}"
+						echo "URL: http://${dominio}:${PORT}" 
+		    		} catch (exc) {
+		    			echo "Error al buscar el puerto de servicio"
+		    			throw exc
+		    		}
+		    	}
+		    }
+	    }
+	    
+	    stage("Liberacion recursos") {
+	    	steps {
+	    		script {
+					try {
+						echo "Eliminamos imagenes innecesarias: ${imageNameApp}:${imageTagApp} manteniendolas en el registro privado"
+		    			sh "docker images -a | grep ${imageNameApp} | awk '{print \$3}' | xargs docker rmi --force"
+		    		} catch (exc) {
+		    			echo "Error al lanzar limpieza de imagenes"
+		    			throw exc
+		    		}
+		    	}
+		    }
+	    }
+	    
+    }
+
+	post {
+        always {
+			echo "Fin Proceso"
+        }
+        success {
+            echo "Fin OK";
+        }
+        unstable {
+            echo "Fin inestable";
+        }
+        failure {
+            echo "Fin KO";
+        }
+    }
+}

@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: APPNAME-cm
+  namespace: NAMESPACE
+data:
+  SPRING_PROFILES_ACTIVE: conso
+  TZ: 'Europe/Madrid'
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: APPNAME-VERSIONDEPLOY-DEPLOY
+  namespace: NAMESPACE
+  labels:
+    app: APPNAME
+    version: VERSIONDEPLOY
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: APPNAME
+      version: VERSIONDEPLOY
+  template:
+    metadata:
+      labels:
+        app: APPNAME
+        version: VERSIONDEPLOY
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/APPINGRESSPATH/actuator/prometheus"
+        prometheus.io/port: "8080"
+        prometheus.io/scheme: "http"
+    spec:
+      containers:
+      - name: APPNAME
+        image: REGISTRO/IMAGENAME:IMAGETAG
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: APPNAME-cm
+        env:
+          - name: VERSION
+            value: VERSIONDEPLOY
+        ports:
+        - containerPort: 8080
+          name: http-port
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          periodSeconds: 10
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /APPINGRESSPATH/actuator/health
+            port: 8080
+          periodSeconds: 10
+          initialDelaySeconds: 40
+          timeoutSeconds: 5
+      nodeSelector:
+        worker: "true"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: APPNAME-svc
+  namespace: NAMESPACE  
+  labels:
+    app: APPNAME
+    service: APPNAME
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    name: http-port
+    protocol: TCP
+  selector:
+    app: APPNAME

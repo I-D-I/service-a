@@ -1,0 +1,80 @@
+def BRANCH = ""
+def version = ""
+def appName = ""
+def dirVirtualService = "orchestrators/conso/k8s/app/virtualservice"
+
+def getFiles(dir) {
+	files = findFiles(glob: "${dir}/*.*")
+	return files.toList()
+}
+
+pipeline {
+
+	agent { label "pica" }
+
+	stages {
+
+		stage ("Inicializacion") {
+            steps {
+				echo "Inicio pipeline"
+            }
+        }
+
+        stage ("artifactId y version desde el pom.xml") {
+            steps {
+            	script {
+            		pom = readMavenPom file: 'pom.xml'
+    				version = pom.version
+    				appName = pom.artifactId.toLowerCase()
+    				BRANCH = BRANCH_NAME.substring(BRANCH_NAME.lastIndexOf('/') + 1, BRANCH_NAME.length())
+            	}
+            }
+        }
+
+        stage ("Echo variables") {
+            steps {
+				echo "version = ${version}"
+				echo "appName = ${appName}"
+				echo "BRANCH_NAME = ${BRANCH}"
+            }
+        }
+
+	    stage("Virtual Service") {
+        	steps {
+				timeout(time: 24, unit: 'HOURS') {
+                    script {
+                        def VIRTUALSERVICE = input(id: 'VIRTUALSERVICE', message: 'Please Provide Parameters', ok: 'Next',
+							parameters: [[$class: 'ChoiceParameterDefinition', description:'Available File virtualservices', name:'FILE_VIRTUALSERVICE', choices: getFiles("${dirVirtualService}")]
+						])
+						echo "VirtualService = ${VIRTUALSERVICE}"
+						
+						def text = readFile "${VIRTUALSERVICE}"
+						text = text.replaceAll("APPNAME", "${appName}")
+						text = text.replaceAll("NAMESPACE", "${namespace}")
+		    			writeFile file: "${VIRTUALSERVICE}", text: "${text}"
+		    			echo "virtualservice = \n${text}"
+						
+						sh "kubectl apply -f ${VIRTUALSERVICE}"
+                    }
+	        	}
+	    	}
+	    }
+	    
+
+    }
+
+	post {
+        always {
+			echo "Fin Proceso"
+        }
+        success {
+            echo "Fin OK";
+        }
+        unstable {
+            echo "Fin inestable";
+        }
+        failure {
+            echo "Fin KO";
+        }
+    }
+}

@@ -1,0 +1,16 @@
+kind: DestinationRule
+metadata:
+  name: APPNAME-dr
+  namespace: NAMESPACE
+spec:
+  host: APPNAME-svc
+  subsets:
+  - labels:
+      version: v1
+    name: version-v1
+  - labels:
+      version: v2
+    name: version-v2
+  trafficPolicy:
+    tls:
+      mode: DISABLE
