@@ -19,6 +19,8 @@ import brave.Tracer;
 import es.vn.sb.service.HelloService;
 import es.vn.sb.utils.Constants;
 import es.vn.sb.utils.Utils;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 
 @RestController
 @RequestMapping("/hello")
@@ -41,6 +43,7 @@ public class HelloController {
 	@Autowired
 	Tracer tracer;
 
+	@RateLimiter(name = "helloSvc", fallbackMethod = "helloSvcRateFail") 
 	@RequestMapping(method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
 	public HttpEntity<String> hello() {
 		logger.info("START hello():");
@@ -58,6 +61,7 @@ public class HelloController {
 				HttpStatus.OK);
 	}
 
+	@CircuitBreaker(name = "serviceb", fallbackMethod = "servicebCallFail")
 	@RequestMapping(path = "/direct", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
 	public HttpEntity<String> helloDirect() {
 		logger.info("START helloDirect()");
@@ -104,5 +108,13 @@ public class HelloController {
 				appVersion, Utils.getPodName(), error, appVersion, serviceVersion),
 				HttpStatus.OK);
 	}
+	
+	public HttpEntity<String> helloSvcRateFail(Exception e) { 
+	    return new ResponseEntity<String>("limiter triggered",HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	public HttpEntity<String> servicebCallFail(Exception e) {
+        return new ResponseEntity<String>("serviceb call failed",HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
 }
