@@ -7,24 +7,26 @@ import org.springframework.web.client.RestTemplate;
 
 import brave.Span;
 import brave.Tracer;
+import es.vn.sb.model.Tramit;
 
 @Service
-public class HelloServiceImpl implements HelloService {
+public class TramitServiceImpl implements TramitService {
 
-    @Autowired
+	@Autowired
     private RestTemplate myRestTemplate;
     
-    @Value("${service-b.url}")
-    String url;
+    @Value("${service-k1.tramit.topic.create.url}")
+    String tramitTopicCreateUrl;
 
     @Autowired
 	Tracer tracer;
-
-	public String helloDirect() throws Exception {
+    
+	@Override
+	public String createTramit(Tramit tramit) {
 		Span span = tracer.currentSpan();
 		span.tag("service", "entrada al servicio");
-		span.annotate(String.format("Llamada al servicio con url %s", url));
-		return myRestTemplate.getForEntity(url, String.class).getBody();
-	}
-    
-}   
+		span.annotate(String.format("Llamada al servicio con url %s", tramitTopicCreateUrl));
+		return myRestTemplate.postForEntity(tramitTopicCreateUrl, tramit, String.class).getBody();
+	}	
+
+}

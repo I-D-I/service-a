@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "spring.application.version",
+    "type": "java.lang.String",
+    "description": "application version"
+  },
+  {
+    "name": "service-b.url",
+    "type": "java.lang.String",
+    "description": "UTL to call to service-b"
+  }
+]}
