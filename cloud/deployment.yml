@@ -5,6 +5,7 @@ metadata:
   namespace: dev
   labels:
     app: service-a
+    k8s-app: service-a
     version: v1
 spec:
   replicas: 1
@@ -12,11 +13,13 @@ spec:
   selector:
     matchLabels:
       app: service-a
+      k8s-app: service-a
       version: v1
   template:
     metadata:
       labels:
         app: service-a
+        k8s-app: service-a
         version: v1
       annotations:
         prometheus.io/scrape: "true"
@@ -63,7 +66,7 @@ metadata:
   namespace: dev  
   labels:
     app: service-a
-    service: service-a
+    k8s-app: service-a
 spec:
   ports:
   - port: 80
@@ -72,3 +75,4 @@ spec:
     protocol: TCP
   selector:
     app: service-a
+    k8s-app: service-a
