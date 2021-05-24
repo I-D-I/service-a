@@ -28,18 +28,18 @@ management:
         exclude: env
 
 service-b:
-  url: http://localhost:8081/service-b/hello/direct
+  url: http://service-b-svc/service-b/hello/direct
   user:
-    url: http://localhost:8081/service-b/user/1
+    url: http://service-b-svc/service-b/user/1
   users:
-    url: http://localhost:8081/service-b/user/users
+    url: http://service-b-svc/service-b/user/users
     
 service-k1:
   user:
     topic:
       create: 
-        url: http://localhost:8083/service-k1/user/create
+        url: http://service-k-svc/service-k1/user/create
   tramit:
     topic:
       create:
-        url: http://localhost:8083/service-k1/tramit/create
+        url: http://service-k-svc/service-k1/tramit/create
