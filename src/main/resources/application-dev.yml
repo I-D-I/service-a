@@ -1,0 +1,45 @@
+server:
+  port: ${SERVER_PORT}
+  servlet:
+    context-path: /service-a
+
+logging:
+  level:
+    root: INFO
+
+spring:
+  application:
+    name: '@project.artifactId@'
+    version: '@project.version@'
+  zipkin:
+    baseUrl: http://jaeger-collector.istio-system.svc.cluster.local:9411
+  sleuth:
+    sampler:
+      probability: 1.0
+      
+management:
+  metrics:
+    tags:
+      application: '@project.artifactId@'
+  endpoints:
+    web:
+      exposure:
+        include: 'health,info,prometheus'
+        exclude: env
+
+service-b:
+  url: http://localhost:8081/service-b/hello/direct
+  user:
+    url: http://localhost:8081/service-b/user/1
+  users:
+    url: http://localhost:8081/service-b/user/users
+    
+service-k1:
+  user:
+    topic:
+      create: 
+        url: http://localhost:8083/service-k1/user/create
+  tramit:
+    topic:
+      create:
+        url: http://localhost:8083/service-k1/tramit/create
