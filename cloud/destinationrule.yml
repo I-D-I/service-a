@@ -1,0 +1,11 @@
+kind: DestinationRule
+apiVersion: networking.istio.io/v1alpha3
+metadata:
+  name: service-a-dr
+  namespace: dev
+spec:
+  host: service-a-svc
+  subsets:
+  - labels:
+      version: v1
+    name: version-v1

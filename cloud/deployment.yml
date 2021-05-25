@@ -67,6 +67,7 @@ metadata:
   labels:
     app: service-a
     k8s-app: service-a
+    version: v1
 spec:
   ports:
   - port: 80
@@ -76,3 +77,4 @@ spec:
   selector:
     app: service-a
     k8s-app: service-a
+    version: v1
