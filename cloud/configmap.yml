@@ -7,4 +7,10 @@ data:
   SERVER_PORT: '8080'
   SPRING_PROFILES_ACTIVE: dev
   TZ: 'Europe/Madrid'
+  TRACES_ENDPOINT: 'http://jaeger-collector.istio-system.svc.cluster.local:9411'
+  SERVICE_B_HELLO_URL: 'http://service-b-svc/service-b/hello/direct'
+  SERVICE_B_USER_URL: 'http://service-b-svc/service-b/user/1'
+  SERVICE_B_USERS_URL: 'http://service-b-svc/service-b/user/users'
+  SERVICE_K1_USER_TOPIC_CREATE_URL: 'http://service-k-svc/service-k1/user/create'
+  SERVICE_K1_TRAMIT_TOPIC_CREATE_URL: 'http://service-k-svc/service-k1/tramit/create'
   

@@ -12,7 +12,7 @@ spring:
     name: '@project.artifactId@'
     version: '@project.version@'
   zipkin:
-    baseUrl: http://jaeger-collector.istio-system.svc.cluster.local:9411
+    baseUrl: ${TRACES_ENDPOINT}
   sleuth:
     sampler:
       probability: 1.0
@@ -28,18 +28,19 @@ management:
         exclude: env
 
 service-b:
-  url: http://service-b-svc/service-b/hello/direct
+  hello:
+    url: ${SERVICE_B_HELLO_URL}
   user:
-    url: http://service-b-svc/service-b/user/1
+    url: ${SERVICE_B_USER_URL}
   users:
-    url: http://service-b-svc/service-b/user/users
+    url: ${SERVICE_B_USERS_URL}
     
 service-k1:
   user:
     topic:
       create: 
-        url: http://service-k-svc/service-k1/user/create
+        url: ${SERVICE_K1_USER_TOPIC_CREATE_URL}
   tramit:
     topic:
       create:
-        url: http://service-k-svc/service-k1/tramit/create
+        url: ${SERVICE_K1_TRAMIT_TOPIC_CREATE_URL}

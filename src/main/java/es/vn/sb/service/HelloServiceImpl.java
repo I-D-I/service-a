@@ -14,7 +14,7 @@ public class HelloServiceImpl implements HelloService {
     @Autowired
     private RestTemplate myRestTemplate;
     
-    @Value("${service-b.url}")
+    @Value("${service-b.hello.url}")
     String url;
 
     @Autowired
