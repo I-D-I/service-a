@@ -28,7 +28,8 @@ management:
         exclude: env
 
 service-b:
-  url: http://localhost:8081/service-b/hello/direct
+  hello:
+    url: http://localhost:8081/service-b/hello/direct
   user:
     url: http://localhost:8081/service-b/user/1
   users:
