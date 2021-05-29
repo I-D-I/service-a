@@ -84,7 +84,7 @@ public class HelloController {
 				span.annotate("Petición normal hacia servicio-b");
 
 				StringBuffer result = new StringBuffer(helloService.helloDirect());
-				//result.append("\n").append(userService.createTopic(user));
+				result.append("\n").append(userService.createTopic(user));
 
 				return new ResponseEntity<String>(
 						String.format("OK from '%s', version '%s'\n%s", appName, appVersion, result.toString()),
