@@ -73,7 +73,6 @@ public class HelloController {
 				HttpStatus.OK);
 	}
 
-	@Timed(value = "poc")
 	@RequestMapping(path = "/direct", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
 	public HttpEntity<String> helloDirect(@RequestBody User user) {
 		logger.info("peticion_iniciada");
