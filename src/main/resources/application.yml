@@ -26,6 +26,10 @@ management:
       exposure:
         include: 'health,info,prometheus'
         exclude: env
+      cors:        allowed-origins:        - '*'
+        allowed-methods:        - GET
+        - OPTIONS
+        allowed-headers:        - '*'
 
 service-b:
   hello:
