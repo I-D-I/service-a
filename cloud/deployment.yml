@@ -41,15 +41,15 @@ spec:
         readinessProbe:
           tcpSocket:
             port: 8080
-          periodSeconds: 10
-          initialDelaySeconds: 30
+          periodSeconds: 30
+          initialDelaySeconds: 50
           timeoutSeconds: 5
         livenessProbe:
           httpGet:
             path: /service-a/actuator/health
             port: 8080
-          periodSeconds: 10
-          initialDelaySeconds: 40
+          periodSeconds: 30
+          initialDelaySeconds: 60
           timeoutSeconds: 5
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File

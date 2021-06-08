@@ -12,6 +12,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -27,7 +28,6 @@ import es.vn.sb.service.HelloService;
 import es.vn.sb.service.UserService;
 import es.vn.sb.utils.Constants;
 import es.vn.sb.utils.Utils;
-import io.micrometer.core.annotation.Timed;
 
 @RestController
 @RequestMapping("/hello")
@@ -73,6 +73,7 @@ public class HelloController {
 				HttpStatus.OK);
 	}
 
+	@CrossOrigin(origins = "*")
 	@RequestMapping(path = "/direct", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
 	public HttpEntity<String> helloDirect(@RequestBody User user) {
 		logger.info("peticion_iniciada");
