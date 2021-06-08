@@ -1,6 +1,8 @@
 package es.vn.sb.controller;
 
 import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -14,7 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -74,8 +75,10 @@ public class HelloController {
 	}
 
 	@CrossOrigin(origins = "*")
-	@RequestMapping(path = "/direct", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
-	public HttpEntity<String> helloDirect(@RequestBody User user) {
+	@RequestMapping(path = "/direct", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
+	public HttpEntity<String> helloDirect() {
+		Random random = new Random();
+		User user = new User(random.nextInt(100), UUID.randomUUID().toString());
 		logger.info("peticion_iniciada");
 		Span span = tracer.currentSpan();
 		span.tag("controller", "entrada al controller");
