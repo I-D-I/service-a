@@ -77,11 +77,11 @@ public class HelloController {
 	}
 
 	@CrossOrigin(origins = "*")
-	@RequestMapping(path = "/pedido", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
-	public HttpEntity<String> helloDirect(@RequestBody Pedido pedido) {
+	@RequestMapping(path = "/pedido", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
+	public HttpEntity<String> getPedido(@RequestBody Pedido pedido) {
 		Random random = new Random();
 		User user = new User(random.nextInt(100), UUID.randomUUID().toString());
-		logger.info("peticion_iniciada");
+		logger.info(String.format("peticion_iniciada", pedido.toString()));
 		Span span = tracer.currentSpan();
 		span.tag("controller", "entrada al controller");
 		try {
