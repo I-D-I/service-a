@@ -33,7 +33,7 @@ management:
 
 service-b:
   hello:
-    url: http://localhost:8081/service-b/hello/direct
+    url: http://localhost:8081/service-b/api/pedido
   user:
     url: http://localhost:8081/service-b/user/1
   users:

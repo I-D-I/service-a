@@ -32,7 +32,7 @@ public class HelloWebController {
 	public String hello(
 			@RequestHeader(value = "sprint", required = false, defaultValue = "0") String sprint, Model model) {
 		logger.info("START hello():");
-		model.addAttribute("message", String.format("(%tc) HELLO from '%s' in sprint: '%s', pom version: '%s', service version: %s and pod: '%s'", new Date(), appName, sprint,
+		model.addAttribute("message", String.format("(%tc) OK - '%s' in sprint: '%s', pom version: '%s', service version: %s and pod: '%s'", new Date(), appName, sprint,
 				appVersion, serviceVersion, Utils.getPodName()));
 		return "index";
 	}

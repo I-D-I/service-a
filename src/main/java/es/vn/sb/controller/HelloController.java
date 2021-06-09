@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,6 +25,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import brave.Span;
 import brave.Tracer;
+import es.vn.sb.model.Pedido;
 import es.vn.sb.model.User;
 import es.vn.sb.service.HelloService;
 import es.vn.sb.service.UserService;
@@ -31,7 +33,7 @@ import es.vn.sb.utils.Constants;
 import es.vn.sb.utils.Utils;
 
 @RestController
-@RequestMapping("/hello")
+@RequestMapping("/api")
 public class HelloController {
 
 	private static final Logger logger = LoggerFactory.getLogger(HelloController.class);
@@ -60,7 +62,7 @@ public class HelloController {
 			logger.info(String.format("Header '%s' = %s", key, value));
 		});
 		return new ResponseEntity<String>(
-				String.format("HELLO from '%s' with context path '%s'\n", appName, request.getRequestURI()),
+				String.format("OK - '%s'\n", appName),
 				HttpStatus.OK);
 	}
 
@@ -69,14 +71,14 @@ public class HelloController {
 			@RequestHeader(value = "sprint", required = false, defaultValue = "0") String sprint) {
 		logger.info("START hello(): sprint: " + sprint);
 		return new ResponseEntity<String>(
-				String.format("HELLO from '%s' in sprint: '%s', version: '%s', with path '%s'", appName, sprint,
+				String.format("OK - '%s' in sprint: '%s', version: '%s', with path '%s'", appName, sprint,
 						appVersion, request.getRequestURI()),
 				HttpStatus.OK);
 	}
 
 	@CrossOrigin(origins = "*")
-	@RequestMapping(path = "/direct", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
-	public HttpEntity<String> helloDirect() {
+	@RequestMapping(path = "/pedido", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
+	public HttpEntity<String> helloDirect(@RequestBody Pedido pedido) {
 		Random random = new Random();
 		User user = new User(random.nextInt(100), UUID.randomUUID().toString());
 		logger.info("peticion_iniciada");
@@ -90,18 +92,22 @@ public class HelloController {
 				result.append("\n").append(userService.createTopic(user));
 
 				return new ResponseEntity<String>(
-						String.format("OK from '%s', version '%s'\n%s", appName, appVersion, result.toString()),
+						String.format("OK - '%s'\n'%s'", appName, result.toString()),
 						HttpStatus.OK);
 			}
 
 			if (Utils.getRandomInt() == 1) {
 				span.annotate("Generamos error en el servicio-a");
-				return new ResponseEntity<String>(String.format("HELLO from '%s', version '%s'", appName, appVersion),
+				return new ResponseEntity<String>(String.format("OK - '%s'", appName),
 						HttpStatus.INTERNAL_SERVER_ERROR);
 			} else {
 				span.annotate("Petición sin error hacia servicio-b");
-				return new ResponseEntity<String>(String.format("HELLO from '%s', version '%s'\n'%s'", appName,
-						appVersion, helloService.helloDirect()), HttpStatus.OK);
+				StringBuffer result = new StringBuffer(helloService.helloDirect());
+				result.append("\n").append(userService.createTopic(user));
+
+				return new ResponseEntity<String>(
+						String.format("OK - '%s'\n'%s'", appName, result.toString()),
+						HttpStatus.OK);
 			}
 		} catch (HttpClientErrorException e) {
 			span.annotate("Petición con error hacia servicio-b");
