@@ -92,13 +92,13 @@ public class HelloController {
 				result.append("\n").append(userService.createTopic(user));
 
 				return new ResponseEntity<String>(
-						String.format("OK - '%s'\n%s", appName, result.toString()),
+						String.format("OK - %s\n%s", appName, result.toString()),
 						HttpStatus.OK);
 			}
 
 			if (Utils.getRandomInt() == 1) {
 				span.annotate("Generamos error en el servicio-a");
-				return new ResponseEntity<String>(String.format("KO - '%s'", appName),
+				return new ResponseEntity<String>(String.format("KO - %s", appName),
 						HttpStatus.INTERNAL_SERVER_ERROR);
 			} else {
 				span.annotate("Petición sin error hacia servicio-b");
@@ -106,21 +106,21 @@ public class HelloController {
 				result.append("\n").append(userService.createTopic(user));
 
 				return new ResponseEntity<String>(
-						String.format("OK - '%s'\n%s", appName, result.toString()),
+						String.format("OK - %s\n%s", appName, result.toString()),
 						HttpStatus.OK);
 			}
 		} catch (HttpClientErrorException e) {
 			span.annotate("Petición con error hacia servicio-b");
 			logger.error(String.format("Exception: %s", e.getLocalizedMessage()));
 			return new ResponseEntity<String>(
-					String.format("KO from '%s', version '%s'\n'%s'\n\t%s", appName, appVersion,
+					String.format("KO - %s, version '%s'\n'%s'\n\t%s", appName, appVersion,
 							"ERROR en el flujo de peticiones llamando al service-b", e.getLocalizedMessage()),
 					e.getStatusCode());
 		} catch (Exception e) {
 			span.annotate("Petición con error hacia servicio-b");
 			logger.error(String.format("Exception: %s", e.getLocalizedMessage()));
 			return new ResponseEntity<String>(
-					String.format("KO from '%s', version '%s'\n'%s'\n\t%s", appName, appVersion,
+					String.format("KO - %s, version '%s'\n'%s'\n\t%s", appName, appVersion,
 							"ERROR en el flujo de peticiones llamando al service-b", e.getLocalizedMessage()),
 					HttpStatus.SERVICE_UNAVAILABLE);
 		}
