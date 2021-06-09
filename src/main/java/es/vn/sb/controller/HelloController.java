@@ -92,13 +92,13 @@ public class HelloController {
 				result.append("\n").append(userService.createTopic(user));
 
 				return new ResponseEntity<String>(
-						String.format("OK - '%s'\n'%s'", appName, result.toString()),
+						String.format("OK - '%s'\n%s", appName, result.toString()),
 						HttpStatus.OK);
 			}
 
 			if (Utils.getRandomInt() == 1) {
 				span.annotate("Generamos error en el servicio-a");
-				return new ResponseEntity<String>(String.format("OK - '%s'", appName),
+				return new ResponseEntity<String>(String.format("KO - '%s'", appName),
 						HttpStatus.INTERNAL_SERVER_ERROR);
 			} else {
 				span.annotate("Petición sin error hacia servicio-b");
@@ -106,7 +106,7 @@ public class HelloController {
 				result.append("\n").append(userService.createTopic(user));
 
 				return new ResponseEntity<String>(
-						String.format("OK - '%s'\n'%s'", appName, result.toString()),
+						String.format("OK - '%s'\n%s", appName, result.toString()),
 						HttpStatus.OK);
 			}
 		} catch (HttpClientErrorException e) {
