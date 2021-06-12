@@ -32,7 +32,7 @@ management:
         allowed-headers:        - '*'
 
 service-b:
-  hello:
+  pedido:
     url: http://localhost:8081/service-b/api/pedido
   user:
     url: http://localhost:8081/service-b/user/1
@@ -40,6 +40,8 @@ service-b:
     url: http://localhost:8081/service-b/user/users
     
 service-k1:
+  pedido:
+    url: http://localhost:8083/service-k1/api/pedido
   user:
     topic:
       create: 

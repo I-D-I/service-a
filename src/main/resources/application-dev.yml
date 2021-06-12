@@ -36,14 +36,16 @@ management:
         - '*'
 
 service-b:
-  hello:
-    url: ${SERVICE_B_HELLO_URL}
+  pedido:
+    url: ${SERVICE_B_PEDIDO_URL}
   user:
     url: ${SERVICE_B_USER_URL}
   users:
     url: ${SERVICE_B_USERS_URL}
     
 service-k1:
+  pedido:
+    url: ${SERVICE_K1_PEDIDO_URL}
   user:
     topic:
       create: 
