@@ -49,7 +49,8 @@ public class PedidoController {
 			StringBuffer result = new StringBuffer();
 			if (pedido.getIteraciones() > 1) {
 				for (int i = 0; i < pedido.getIteraciones(); i++) {
-					pedido.setId(pedido.getId().concat("-").concat(Integer.toString(pedido.getIteraciones())));
+					String id = pedido.getId();
+					pedido.setId(id.concat("-").concat(String.valueOf(i)));
 					logger.info(String.format("peticion_iniciada: %s", pedido.toString()));
 					result = result.append(pedidoService.createPedido(pedido));
 					result.append("\n").append(pedidoService.createTopic(pedido));
