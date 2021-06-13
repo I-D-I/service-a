@@ -37,40 +37,31 @@ public class PedidoController {
 	@Autowired
 	Tracer tracer;
 
-	
-	@CrossOrigin(origins = "*", methods = {RequestMethod.POST, RequestMethod.OPTIONS})
+	@CrossOrigin(origins = "*", methods = { RequestMethod.POST, RequestMethod.OPTIONS })
 	@RequestMapping(path = "/pedido", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
 	public HttpEntity<String> createPedido(@RequestBody Pedido pedido) {
-		
-		logger.info(String.format("peticion_iniciada: %s", pedido.toString()));
+
 		Span span = tracer.currentSpan();
 		span.tag("controller", "entrada al controller");
-		
+
 		try {
-			if (Constants.ERROR == 0) {
-				span.annotate("Petición normal hacia servicio-b");
-
-				StringBuffer result = new StringBuffer(pedidoService.createPedido(pedido));
-				result.append("\n").append(pedidoService.createTopic(pedido));
-
-				return new ResponseEntity<String>(
-						String.format("OK - %s\n%s", appName, result.toString()),
-						HttpStatus.OK);
+			span.annotate("Petición normal hacia servicio-b");
+			StringBuffer result = new StringBuffer();
+			if (pedido.getIteraciones() > 1) {
+				for (int i = 0; i < pedido.getIteraciones(); i++) {
+					pedido.setId(pedido.getId().concat("-").concat(Integer.toString(pedido.getIteraciones())));
+					logger.info(String.format("peticion_iniciada: %s", pedido.toString()));
+					result = result.append(pedidoService.createPedido(pedido));
+					result.append("\n").append(pedidoService.createTopic(pedido));
+				}
+				return new ResponseEntity<String>(String.format("OK - %s\n%s", appName, result.toString()), HttpStatus.OK);
 			}
+			
+			logger.info(String.format("peticion_iniciada: %s", pedido.toString()));
+			result = result.append(pedidoService.createPedido(pedido));
+			result.append("\n").append(pedidoService.createTopic(pedido));
+			return new ResponseEntity<String>(String.format("OK - %s\n%s", appName, result.toString()), HttpStatus.OK);
 
-			if (Utils.getRandomInt() == 1) {
-				span.annotate("Generamos error en el servicio-a");
-				return new ResponseEntity<String>(String.format("KO - %s", appName),
-						HttpStatus.INTERNAL_SERVER_ERROR);
-			} else {
-				span.annotate("Petición sin error hacia servicio-b");
-				StringBuffer result = new StringBuffer(pedidoService.createPedido(pedido));
-				result.append("\n").append(pedidoService.createTopic(pedido));
-
-				return new ResponseEntity<String>(
-						String.format("OK - %s\n%s", appName, result.toString()),
-						HttpStatus.OK);
-			}
 		} catch (HttpClientErrorException e) {
 			span.annotate("Petición con error hacia servicio-b");
 			logger.error(String.format("Exception: %s", e.getLocalizedMessage()));

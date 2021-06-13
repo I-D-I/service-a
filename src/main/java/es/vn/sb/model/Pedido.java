@@ -5,24 +5,24 @@ import java.io.Serializable;
 public class Pedido implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private Long id;
+	private String id;
 	private Integer iteraciones;
-	
+
 	public Pedido() {
 		super();
 	}
 
-	public Pedido(Long id, Integer iteraciones) {
+	public Pedido(String id, String pedidoId, Integer iteraciones) {
 		super();
 		this.id = id;
 		this.iteraciones = iteraciones;
 	}
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -69,5 +69,5 @@ public class Pedido implements Serializable {
 	public String toString() {
 		return "Pedido [id=" + id + ", iteraciones=" + iteraciones + "]";
 	}
-	
+
 }
