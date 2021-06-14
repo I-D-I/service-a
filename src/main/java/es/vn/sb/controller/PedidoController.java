@@ -47,9 +47,9 @@ public class PedidoController {
 		try {
 			span.annotate("Petición normal hacia servicio-b");
 			StringBuffer result = new StringBuffer();
+			String id = pedido.getId();
 			if (pedido.getIteraciones() > 1) {
 				for (int i = 0; i < pedido.getIteraciones(); i++) {
-					String id = pedido.getId();
 					pedido.setId(id.concat("-").concat(String.valueOf(i)));
 					logger.info(String.format("peticion_iniciada: %s", pedido.toString()));
 					result = result.append(pedidoService.createPedido(pedido));
