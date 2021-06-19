@@ -16,7 +16,7 @@ RUN apt update && apt install -y curl
   
 #COPY --from=builder /app/target/*.jar /app.jar
 
-COPY target/target/*.jar /app.jar
+COPY target/*.jar /app.jar
 
 EXPOSE 8080
 
