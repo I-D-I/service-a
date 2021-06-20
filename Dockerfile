@@ -16,9 +16,7 @@ USER root
 
 RUN apt update && apt install -y curl
 
-WORKDIR /workspace/output
-
-RUN ls -la
+RUN ls -la target
 #COPY --from=builder /workspace/source/target/*.jar /app.jar
 COPY target/*.jar /app.jar
 
