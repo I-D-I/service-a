@@ -1,11 +1,11 @@
 ### STAGE 1: Setup ###
 FROM maven as builder
 
-RUN mkdir /app
+WORKDIR /app
 
 COPY . /app
 
-WORKDIR /app
+COPY pom.xml /app
 
 RUN ls -la
 
