@@ -3,7 +3,7 @@ FROM maven as builder
 
 WORKDIR /app
 
-COPY ../src/ ./src
+COPY ../src/* ./src
 
 COPY ../pom.xml .
 
