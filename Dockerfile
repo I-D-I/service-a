@@ -18,11 +18,13 @@ RUN apt update && apt install -y curl
 
 WORKDIR /workspace/source
 
+COPY . .
+
 RUN pwd
 
 RUN ls -la
 #COPY --from=builder /workspace/source/target/*.jar /app.jar
-COPY *.jar /app.jar
+COPY target/*.jar /app.jar
 
 
 EXPOSE 8080
