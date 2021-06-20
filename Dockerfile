@@ -1,7 +1,7 @@
 ### STAGE 1: Setup ###
 FROM maven as builder
 
-WORKDIR /workspace
+WORKDIR /workspace/source
 
 RUN mvn package -DskipTests
 
@@ -12,7 +12,7 @@ USER root
 
 RUN apt update && apt install -y curl
   
-COPY --from=builder /workspace/target/*.jar /app.jar
+COPY --from=builder /workspace/source/target/*.jar /app.jar
 
 EXPOSE 8080
 
