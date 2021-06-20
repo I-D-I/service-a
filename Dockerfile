@@ -1,7 +1,11 @@
 ### STAGE 1: Setup ###
 FROM maven as builder
 
-RUN ls -la /workspace
+RUN pwd
+
+RUN ls -la /workspace/source
+
+RUN ls -la /workspace/output
 
 WORKDIR /app
 COPY ./src ./src
