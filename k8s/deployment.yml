@@ -48,7 +48,7 @@ spec:
     spec:
       containers:
       - name: service-a
-        image: de.icr.io/appops/service-a:1.0.0
+        image: docker.io/gines/service-a:1.0.0
         imagePullPolicy: Always
         envFrom:
         - configMapRef:
