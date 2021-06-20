@@ -2,6 +2,9 @@
 FROM maven as builder
 
 WORKDIR /app
+
+RUN ls -la
+
 COPY . .
 
 RUN mvn package -DskipTests
