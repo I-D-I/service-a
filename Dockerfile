@@ -16,6 +16,8 @@ USER root
 
 RUN apt update && apt install -y curl
 
+WORKDIR /workspace/source
+
 RUN pwd
 
 RUN ls -la
