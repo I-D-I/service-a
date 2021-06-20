@@ -23,7 +23,7 @@ RUN pwd
 RUN ls -la target
 #COPY --from=builder /workspace/source/target/*.jar /app.jar
 
-COPY target/*.jar /app.jar
+COPY target/service-a.jar /app.jar
 
 
 EXPOSE 8080
