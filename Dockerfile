@@ -16,7 +16,9 @@ USER root
 
 RUN apt update && apt install -y curl
 
-RUN ls -la target
+RUN pwd
+
+RUN ls -lRt | grep service-a*.jar
 #COPY --from=builder /workspace/source/target/*.jar /app.jar
 COPY target/*.jar /app.jar
 
