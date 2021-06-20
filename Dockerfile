@@ -1,15 +1,9 @@
 ### STAGE 1: Setup ###
 FROM maven as builder
 
-RUN pwd
-
-RUN ls -la /workspace/source
-
-RUN ls -la /workspace/output
-
 WORKDIR /app
-COPY ./src ./src
-COPY ./pom.xml .
+COPY /workspace/source/src ./src
+COPY /workspace/source/pom.xml .
 
 RUN ls -la
 
