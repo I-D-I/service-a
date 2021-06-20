@@ -2,8 +2,8 @@
 FROM maven as builder
 
 WORKDIR /app
-COPY src ./src
-COPY pom.xml .
+COPY /workspace/output/src ./src
+COPY /workspace/output/pom.xml .
 
 RUN ls -la
 
