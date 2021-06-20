@@ -2,9 +2,7 @@
 FROM maven as builder
 
 WORKDIR /app
-
-COPY . .
-
+COPY src ./src
 COPY pom.xml .
 
 RUN ls -la
