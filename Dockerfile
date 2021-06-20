@@ -1,9 +1,11 @@
 ### STAGE 1: Setup ###
 FROM maven as builder
 
-WORKDIR /app
+RUN mkdir /app
 
-COPY /workspace/ .
+COPY . /app
+
+WORKDIR /app
 
 RUN ls -la
 
