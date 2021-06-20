@@ -1,11 +1,11 @@
 ### STAGE 1: Setup ###
 FROM maven as builder
 
-#WORKDIR /app
+WORKDIR /app
+
+COPY /workspace/ .
 
 RUN ls -la
-
-COPY . .
 
 RUN mvn package -DskipTests
 
