@@ -1,6 +1,8 @@
 ### STAGE 1: Setup ###
 FROM maven as builder
 
+RUN ls -la /workspace
+
 WORKDIR /app
 COPY ./src ./src
 COPY ./pom.xml .
