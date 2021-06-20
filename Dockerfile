@@ -18,9 +18,9 @@ RUN apt update && apt install -y curl
 
 RUN pwd
 
-RUN ls -lRt | grep service-a*.jar
+RUN ls -la
 #COPY --from=builder /workspace/source/target/*.jar /app.jar
-COPY target/*.jar /app.jar
+COPY *.jar /app.jar
 
 
 EXPOSE 8080
