@@ -1,7 +1,7 @@
 ### STAGE 1: Setup ###
 FROM maven as builder
 
-WORKDIR /workspace/source
+WORKDIR /workspace/output
 
 COPY . .
 
@@ -18,7 +18,7 @@ USER root
 
 RUN apt update && apt install -y curl
   
-COPY --from=builder /workspace/source/target/*.jar /app.jar
+COPY --from=builder /workspace/output/target/*.jar /app.jar
 
 EXPOSE 8080
 
