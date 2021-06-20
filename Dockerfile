@@ -1,7 +1,7 @@
 ### STAGE 1: Setup ###
 FROM maven as builder
 
-WORKDIR /app
+#WORKDIR /app
 
 RUN ls -la
 
