@@ -20,7 +20,7 @@ RUN apt update && apt install -y curl
 
 RUN pwd
 
-RUN ls -la target
+RUN ls -la
 #COPY --from=builder /workspace/source/target/*.jar /app.jar
 
 COPY /workspace/source/target/service-a.jar /app.jar
