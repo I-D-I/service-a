@@ -1,5 +1,5 @@
 ### STAGE 1: Setup ### para KANIKO
-FROM maven as builder
+FROM maven:3.8.1-jdk-11 as builder
 
 RUN ls -la
 
