@@ -10,7 +10,7 @@
 #RUN ls -la
 
 ### STAGE 2: Setup ###
-FROM openjdk:11-jre-slim
+FROM docker.io/openjdk:11-jre-slim
 
 WORKDIR /workspace/source
 
