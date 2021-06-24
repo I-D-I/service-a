@@ -54,7 +54,7 @@ spec:
     spec:
       containers:
       - name: service-a
-        image: 192.168.100.13:8083/gines/service-a
+        image: 192.168.100.13:8082/gines/service-a:1.0.0
         imagePullPolicy: Always
         envFrom:
         - configMapRef:
@@ -82,23 +82,3 @@ spec:
       schedulerName: default-scheduler
       terminationGracePeriodSeconds: 30
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: service-a-svc
-  namespace: prod  
-  labels:
-    app: service-a
-    k8s-app: service-a
-    version: v1
-spec:
-  ports:
-  - port: 80
-    targetPort: 8080
-    name: http-port
-    protocol: TCP
-  selector:
-    app: service-a
-    k8s-app: service-a
-    version: v1
