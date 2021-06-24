@@ -54,7 +54,7 @@ spec:
     spec:
       containers:
       - name: service-a
-        image: docker.io/gines/service-a:1.0.0
+        image: 192.168.100.13:8083/gines/service-a
         imagePullPolicy: Always
         envFrom:
         - configMapRef:
