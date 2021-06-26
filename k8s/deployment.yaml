@@ -112,10 +112,10 @@ metadata:
 spec:
   host: service-a.debian.local
   upstreams:
-  - name: service-a-svc
+  - name: service-a
     service: service-a-svc
     port: 80
   routes:
   - path: /
     action:
-      pass: service-a-svc
+      pass: service-a
