@@ -114,7 +114,7 @@ spec:
   upstreams:
   - name: service-a-svc
     service: service-a-svc
-    port: 8080
+    port: 80
   routes:
   - path: /
     action:
