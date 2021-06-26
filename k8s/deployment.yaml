@@ -102,3 +102,20 @@ spec:
     app: service-a
     k8s-app: service-a
     version: v1
+    
+---
+apiVersion: k8s.nginx.org/v1
+kind: VirtualServer
+metadata:
+  name: service-a-vs
+  namespace: prod
+spec:
+  host: service-a.debian.local
+  upstreams:
+  - name: service-a-svc
+    service: service-a-svc
+    port: 8080
+  routes:
+  - path: /
+    action:
+      pass: service-a-svc
