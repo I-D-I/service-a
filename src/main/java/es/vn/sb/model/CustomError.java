@@ -7,18 +7,21 @@ public class CustomError implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String customErrorCoder;
-	private String httpStatusCode;
-	private String descripcion;
+	private String customDescripcion;
+	private String statusCode;
+	private String descStatusCode;
 
 	public CustomError() {
 		super();
 	}
 
-	public CustomError(String customErrorCoder, String httpStatusCode, String descripcion) {
+	public CustomError(String customErrorCoder, String customDescripcion, String statusCode, String descStatusCode) {
 		super();
 		this.customErrorCoder = customErrorCoder;
-		this.httpStatusCode = httpStatusCode;
-		this.descripcion = descripcion;
+		this.customDescripcion = customDescripcion;
+		this.statusCode = statusCode;
+		this.descStatusCode = descStatusCode;
+
 	}
 
 	public String getCustomErrorCoder() {
@@ -29,29 +32,38 @@ public class CustomError implements Serializable {
 		this.customErrorCoder = customErrorCoder;
 	}
 
-	public String getHttpStatusCode() {
-		return httpStatusCode;
+	public String getCustomDescripcion() {
+		return customDescripcion;
 	}
 
-	public void setHttpStatusCode(String httpStatusCode) {
-		this.httpStatusCode = httpStatusCode;
+	public void setCustomDescripcion(String customDescripcion) {
+		this.customDescripcion = customDescripcion;
 	}
 
-	public String getDescripcion() {
-		return descripcion;
+	public String getStatusCode() {
+		return statusCode;
 	}
 
-	public void setDescripcion(String descripcion) {
-		this.descripcion = descripcion;
+	public void setStatusCode(String statusCode) {
+		this.statusCode = statusCode;
+	}
+
+	public String getDescStatusCode() {
+		return descStatusCode;
+	}
+
+	public void setDescStatusCode(String descStatusCode) {
+		this.descStatusCode = descStatusCode;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((customDescripcion == null) ? 0 : customDescripcion.hashCode());
 		result = prime * result + ((customErrorCoder == null) ? 0 : customErrorCoder.hashCode());
-		result = prime * result + ((descripcion == null) ? 0 : descripcion.hashCode());
-		result = prime * result + ((httpStatusCode == null) ? 0 : httpStatusCode.hashCode());
+		result = prime * result + ((descStatusCode == null) ? 0 : descStatusCode.hashCode());
+		result = prime * result + ((statusCode == null) ? 0 : statusCode.hashCode());
 		return result;
 	}
 
@@ -64,28 +76,33 @@ public class CustomError implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		CustomError other = (CustomError) obj;
+		if (customDescripcion == null) {
+			if (other.customDescripcion != null)
+				return false;
+		} else if (!customDescripcion.equals(other.customDescripcion))
+			return false;
 		if (customErrorCoder == null) {
 			if (other.customErrorCoder != null)
 				return false;
 		} else if (!customErrorCoder.equals(other.customErrorCoder))
 			return false;
-		if (descripcion == null) {
-			if (other.descripcion != null)
+		if (descStatusCode == null) {
+			if (other.descStatusCode != null)
 				return false;
-		} else if (!descripcion.equals(other.descripcion))
+		} else if (!descStatusCode.equals(other.descStatusCode))
 			return false;
-		if (httpStatusCode == null) {
-			if (other.httpStatusCode != null)
+		if (statusCode == null) {
+			if (other.statusCode != null)
 				return false;
-		} else if (!httpStatusCode.equals(other.httpStatusCode))
+		} else if (!statusCode.equals(other.statusCode))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "CustomError [customErrorCoder=" + customErrorCoder + ", httpStatusCode=" + httpStatusCode
-				+ ", descripcion=" + descripcion + "]";
+		return "CustomError [customErrorCoder=" + customErrorCoder + ", customDescripcion=" + customDescripcion
+				+ ", statusCode=" + statusCode + ", descStatusCode=" + descStatusCode + "]";
 	}
 
 }

@@ -36,7 +36,7 @@ public class PedidoController {
 	Tracer tracer;
 
 	@CrossOrigin(origins = "*", methods = { RequestMethod.POST, RequestMethod.OPTIONS })
-	@RequestMapping(path = "/pedido", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
+	@RequestMapping(path = "/pedido", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> createPedido(@RequestBody Pedido pedido) {
 
 		Span span = tracer.currentSpan();
@@ -63,12 +63,12 @@ public class PedidoController {
 			return new ResponseEntity<Object>(String.format("OK - %s\n%s", appName, result.toString()), HttpStatus.OK);
 
 		} catch (HttpClientErrorException e) {
-			CustomError customError = this.writeCustomError(e, e.getStatusText(), pedido);
+			CustomError customError = this.writeCustomError(e, e.getStatusCode().toString(), pedido);
 			span.annotate(String.format("Petición con error desde servicio-b en pedido.id %s", pedido.getId()));
 			logger.error(String.format("Exception: %s", e.getLocalizedMessage()));
 			return new ResponseEntity<Object>(customError, e.getStatusCode());
 		} catch (Exception e) {
-			CustomError customError = this.writeCustomError(e, HttpStatus.INTERNAL_SERVER_ERROR.toString(), pedido);
+			CustomError customError = this.writeCustomError(e, String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), pedido);
 			span.annotate(String.format("Petición con error desde servicio-b en pedido.id %s", pedido.getId()));
 			logger.error(String.format("Exception: %s", e.getLocalizedMessage()));
 			return new ResponseEntity<Object>(customError,	HttpStatus.INTERNAL_SERVER_ERROR);
@@ -77,9 +77,10 @@ public class PedidoController {
 	
 	private CustomError writeCustomError(Exception e, String status, Pedido pedido) {
 		CustomError customError = new CustomError();
-		customError.setHttpStatusCode(status);
+		customError.setStatusCode(status);
+		customError.setDescStatusCode(e.getMessage());
 		customError.setCustomErrorCoder("COD-00101");
-		customError.setDescripcion(String.format("No se ha podido procesar el pedido %s", pedido.getId()));
+		customError.setCustomDescripcion(String.format("No se ha podido procesar el pedido %s", pedido.getId()));
 		return customError;
 		 
 	}
