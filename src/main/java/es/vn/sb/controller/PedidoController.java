@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +16,9 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import brave.Span;
 import brave.Tracer;
+import es.vn.sb.model.CustomError;
 import es.vn.sb.model.Pedido;
 import es.vn.sb.service.PedidoService;
-import es.vn.sb.utils.Constants;
-import es.vn.sb.utils.Utils;
 
 @RestController
 @RequestMapping("/api")
@@ -39,13 +37,14 @@ public class PedidoController {
 
 	@CrossOrigin(origins = "*", methods = { RequestMethod.POST, RequestMethod.OPTIONS })
 	@RequestMapping(path = "/pedido", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
-	public HttpEntity<String> createPedido(@RequestBody Pedido pedido) {
+	public ResponseEntity<Object> createPedido(@RequestBody Pedido pedido) {
 
 		Span span = tracer.currentSpan();
 		span.tag("controller", "entrada al controller");
-
+		logger.info("pedido recibido: " + pedido.toString());
+		
 		try {
-			span.annotate("Petición normal hacia servicio-b");
+			span.annotate(String.format("Petición normal hacia servicio-b en pedido.id %s", pedido.getId()));
 			StringBuffer result = new StringBuffer();
 			String id = pedido.getId();
 			if (pedido.getIteraciones() > 1) {
@@ -55,29 +54,34 @@ public class PedidoController {
 					result = result.append(pedidoService.createPedido(pedido));
 					result.append("\n").append(pedidoService.createTopic(pedido));
 				}
-				return new ResponseEntity<String>(String.format("OK - %s\n%s", appName, result.toString()), HttpStatus.OK);
+				return new ResponseEntity<Object>(String.format("OK - %s\n%s", appName, result.toString()), HttpStatus.OK);
 			}
 			
 			logger.info(String.format("peticion_iniciada: %s", pedido.toString()));
 			result = result.append(pedidoService.createPedido(pedido));
 			result.append("\n").append(pedidoService.createTopic(pedido));
-			return new ResponseEntity<String>(String.format("OK - %s\n%s", appName, result.toString()), HttpStatus.OK);
+			return new ResponseEntity<Object>(String.format("OK - %s\n%s", appName, result.toString()), HttpStatus.OK);
 
 		} catch (HttpClientErrorException e) {
-			span.annotate("Petición con error hacia servicio-b");
+			CustomError customError = this.writeCustomError(e, e.getStatusText(), pedido);
+			span.annotate(String.format("Petición con error desde servicio-b en pedido.id %s", pedido.getId()));
 			logger.error(String.format("Exception: %s", e.getLocalizedMessage()));
-			return new ResponseEntity<String>(
-					String.format("KO - %s\n'%s'\n\t%s", appName,
-							"ERROR en el flujo de peticiones llamando al service-b", e.getLocalizedMessage()),
-					e.getStatusCode());
+			return new ResponseEntity<Object>(customError, e.getStatusCode());
 		} catch (Exception e) {
-			span.annotate("Petición con error hacia servicio-b");
+			CustomError customError = this.writeCustomError(e, HttpStatus.INTERNAL_SERVER_ERROR.toString(), pedido);
+			span.annotate(String.format("Petición con error desde servicio-b en pedido.id %s", pedido.getId()));
 			logger.error(String.format("Exception: %s", e.getLocalizedMessage()));
-			return new ResponseEntity<String>(
-					String.format("KO - %s\n'%s'\n\t%s", appName,
-							"ERROR en el flujo de peticiones llamando al service-b", e.getLocalizedMessage()),
-					HttpStatus.SERVICE_UNAVAILABLE);
+			return new ResponseEntity<Object>(customError,	HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+	
+	private CustomError writeCustomError(Exception e, String status, Pedido pedido) {
+		CustomError customError = new CustomError();
+		customError.setHttpStatusCode(status);
+		customError.setCustomErrorCoder("COD-00101");
+		customError.setDescripcion(String.format("No se ha podido procesar el pedido %s", pedido.getId()));
+		return customError;
+		 
 	}
 
 }
