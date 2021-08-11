@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
 import brave.Span;
 import brave.Tracer;
 import es.vn.sb.model.CustomError;
 import es.vn.sb.model.Pedido;
 import es.vn.sb.service.PedidoService;
+import es.vn.sb.utils.Constants;
 
 @RestController
 @RequestMapping("/api")
@@ -63,23 +65,28 @@ public class PedidoController {
 			return new ResponseEntity<Object>(String.format("OK - %s\n%s", appName, result.toString()), HttpStatus.OK);
 
 		} catch (HttpClientErrorException e) {
-			CustomError customError = this.writeCustomError(e, e.getStatusCode().toString(), pedido);
+			CustomError customError = this.writeCustomError(e, e.getStatusCode().toString(), "", pedido);
+			span.annotate(String.format("Petición con error desde servicio-b en pedido.id %s", pedido.getId()));
+			logger.error(String.format("Exception: %s", e.getLocalizedMessage()));
+			return new ResponseEntity<Object>(customError, e.getStatusCode());
+		} catch(HttpServerErrorException e) {
+			CustomError customError = this.writeCustomError(e, e.getStatusCode().toString(), Constants.ERROR_TEC_10, pedido);
 			span.annotate(String.format("Petición con error desde servicio-b en pedido.id %s", pedido.getId()));
 			logger.error(String.format("Exception: %s", e.getLocalizedMessage()));
 			return new ResponseEntity<Object>(customError, e.getStatusCode());
 		} catch (Exception e) {
-			CustomError customError = this.writeCustomError(e, String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), pedido);
+			CustomError customError = this.writeCustomError(e, String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), "", pedido);
 			span.annotate(String.format("Petición con error desde servicio-b en pedido.id %s", pedido.getId()));
 			logger.error(String.format("Exception: %s", e.getLocalizedMessage()));
 			return new ResponseEntity<Object>(customError,	HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
-	private CustomError writeCustomError(Exception e, String status, Pedido pedido) {
+	private CustomError writeCustomError(Exception e, String status, String errorCode, Pedido pedido) {
 		CustomError customError = new CustomError();
 		customError.setStatusCode(status);
 		customError.setDescStatusCode(e.getMessage());
-		customError.setCustomErrorCoder("COD-00101");
+		customError.setCustomErrorCoder(errorCode);
 		customError.setCustomDescripcion(String.format("No se ha podido procesar el pedido %s", pedido.getId()));
 		return customError;
 		 
